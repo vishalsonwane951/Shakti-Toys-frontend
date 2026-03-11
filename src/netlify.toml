@@ -11,8 +11,12 @@
   status = 200
   force = true
 
-# ✅ Add this — handles React Router refreshes
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+```
+
+**Step 2:** In Netlify dashboard → **Environment Variables**, set:
+```
+VITE_API_URL = /api

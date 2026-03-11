@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
-import { orderAPI, authAPI } from '../services/api'
+import { orderAPI, authAPI } from '../services/api.js'
 import toast from 'react-hot-toast'
 
 const STATUS_COLORS = { pending:'status-pending', processing:'status-processing', shipped:'status-shipped', delivered:'status-delivered', cancelled:'status-cancelled' }
