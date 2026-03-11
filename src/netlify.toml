@@ -1,0 +1,10 @@
+# netlify.toml
+[build]
+  # Build command
+  command = "npm run build"
+  # Folder to publish
+  publish = "dist"
+
+# Optional: Dev command if you want Netlify CLI to run locally
+[dev]
+  command = "npm run dev"
