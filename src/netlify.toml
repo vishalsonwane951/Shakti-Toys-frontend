@@ -1,10 +1,18 @@
-# netlify.toml
 [build]
-  # Build command
   command = "npm run build"
-  # Folder to publish
   publish = "dist"
 
-# Optional: Dev command if you want Netlify CLI to run locally
 [dev]
   command = "npm run dev"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://shakti-toys-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# ✅ Add this — handles React Router refreshes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

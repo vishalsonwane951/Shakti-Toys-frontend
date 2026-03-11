@@ -18,24 +18,64 @@ export default function AdminProducts() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const load = () => {
-    setLoading(true)
-    productAPI.getAll({ search, page, limit: 10 }).then(r => {
-      setProducts(r.data.products); setTotalPages(r.data.pages)
-    }).finally(() => setLoading(false))
-  }
+  // ✅ Load products safely
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true)
+      try {
+        const r = await productAPI.getAll({ search, page, limit: 10 })
+        setProducts(Array.isArray(r.data?.products) ? r.data.products : [])
+        setTotalPages(r.data?.pages || 1)
+      } catch (err) {
+        console.error('Failed to load products:', err)
+        setProducts([])
+        setTotalPages(1)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProducts()
+  }, [search, page])
 
-  useEffect(load, [search, page])
-  useEffect(() => { categoryAPI.getAll().then(r => setCategories(r.data)) }, [])
+  // ✅ Load categories safely
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const r = await categoryAPI.getAll()
+        setCategories(Array.isArray(r.data) ? r.data : [])
+      } catch (err) {
+        console.error('Failed to load categories:', err)
+        setCategories([])
+      }
+    }
+    loadCategories()
+  }, [])
 
   const openEdit = (p) => {
     setEditing(p)
-    setForm({ name: p.name, description: p.description, price: p.price, originalPrice: p.originalPrice, stock: p.stock, brand: p.brand, category: p.category?._id || '', discount: p.discount || '', isFeatured: p.isFeatured, tags: (p.tags || []).join(', '), specifications: JSON.stringify(p.specifications || []) })
+    setForm({
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      originalPrice: p.originalPrice,
+      stock: p.stock,
+      brand: p.brand,
+      category: p.category?._id || '',
+      discount: p.discount || '',
+      isFeatured: p.isFeatured,
+      tags: (p.tags || []).join(', '),
+      specifications: JSON.stringify(p.specifications || [])
+    })
     setImages([])
     setShowModal(true)
   }
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setImages([]); setShowModal(true) }
+  const openCreate = () => {
+    setEditing(null)
+    setForm(emptyForm)
+    setImages([])
+    setShowModal(true)
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -46,15 +86,25 @@ export default function AdminProducts() {
       if (editing) await productAPI.update(editing._id, fd)
       else await productAPI.create(fd)
       toast.success(editing ? 'Product updated!' : 'Product created!')
-      setShowModal(false); load()
-    } catch (err) { toast.error(err.response?.data?.message || 'Error') }
+      setShowModal(false)
+      // reload products after save
+      const r = await productAPI.getAll({ search, page, limit: 10 })
+      setProducts(Array.isArray(r.data?.products) ? r.data.products : [])
+      setTotalPages(r.data?.pages || 1)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error')
+    }
     setSaving(false)
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this product?')) return
     await productAPI.delete(id)
-    toast.success('Product deleted'); load()
+    toast.success('Product deleted')
+    // reload products after delete
+    const r = await productAPI.getAll({ search, page, limit: 10 })
+    setProducts(Array.isArray(r.data?.products) ? r.data.products : [])
+    setTotalPages(r.data?.pages || 1)
   }
 
   return (
@@ -68,14 +118,14 @@ export default function AdminProducts() {
         <div className="mb-3">
           <input className="form-control" placeholder="Search products..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} style={{ maxWidth: 350 }} />
         </div>
-        {loading ? <div className="text-center py-4"><div className="spinner-border" style={{color:'var(--primary)'}}></div></div> : (
+        {loading ? <div className="text-center py-4"><div className="spinner-border" style={{ color: 'var(--primary)' }}></div></div> : (
           <div className="table-responsive">
             <table className="table table-hover align-middle">
               <thead className="table-light">
                 <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Actions</th></tr>
               </thead>
               <tbody>
-                {products.map(p => (
+                {Array.isArray(products) && products.map(p => (
                   <tr key={p._id}>
                     <td>
                       <div className="d-flex align-items-center gap-2">
