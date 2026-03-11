@@ -4,12 +4,12 @@ import axios from 'axios'
 const API = axios.create({ 
 baseURL:'https://shakti-toys-backend.onrender.com/api' })
 
-// API.interceptors.request.use(config => {
-//   const user = JSON.parse(localStorage.getItem('shakti_user') || 'null')
-//   if (user?.token) config.headers.Authorization = `Bearer ${user.token}`
-//   return config
-// })
-console.log('API base:', API.defaults.baseURL)
+API.interceptors.request.use(config => {
+  const user = JSON.parse(localStorage.getItem('shakti_user') || 'null')
+  if (user?.token) config.headers.Authorization = `Bearer ${user.token}`
+  return config
+})
+console.log('API base:', API.baseURL)
 export const authAPI = {
   login: (data) => API.post('/auth/login', data),
   register: (data) => API.post('/auth/register', data),
