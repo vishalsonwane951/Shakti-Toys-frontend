@@ -1,7 +1,7 @@
 import axios from 'axios'
 // const API = 'http//localhost:5000'
 
-const API = axios.create({ baseURL: 'http://localhost:5000/api' })
+const API = axios.create({ baseURL: 'https://shakti-toys-backend.onrender.com/api' })
 
 API.interceptors.request.use(config => {
   const user = JSON.parse(localStorage.getItem('shakti_user') || 'null')
