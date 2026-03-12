@@ -2,7 +2,7 @@ import axios from 'axios'
 // const API = 'http//localhost:5000'
 
 const API = axios.create({ 
-baseURL:'http://localhost:5000/api' }) // https://shakti-toys-backend.onrender.com/api
+baseURL:'https://shakti-toys-backend.onrender.com/api' }) //   http://localhost:5000/api
 
 API.interceptors.request.use(config => {
   const user = JSON.parse(localStorage.getItem('shakti_user') || 'null')
