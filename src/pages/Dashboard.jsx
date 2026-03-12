@@ -20,6 +20,11 @@ export default function Dashboard() {
 
   useEffect(() => { orderAPI.getMy().then(r => setOrders(r.data)) }, [])
 
+  // ✅ FIX 1: Sync avatarPreview whenever user.avatar changes in context
+  useEffect(() => {
+    if (user?.avatar) setAvatarPreview(user.avatar)
+  }, [user?.avatar])
+
   const handleAvatarChange = (e) => {
     const file = e.target.files[0]
     if (file) { setAvatarFile(file); setAvatarPreview(URL.createObjectURL(file)) }
@@ -37,7 +42,11 @@ export default function Dashboard() {
         fd.append('password', pwForm.password)
       }
       const { data } = await authAPI.updateProfile(fd)
-      updateUser(data)
+
+      updateUser(data)                                 // ✅ FIX 2: updates Navbar + localStorage
+      if (data.avatar) setAvatarPreview(data.avatar)  // ✅ FIX 3: updates sidebar pic
+      setAvatarFile(null)                             // ✅ FIX 4: clears pending file
+
       toast.success('Profile updated!')
     } catch (err) { toast.error('Update failed') }
     setSaving(false)
